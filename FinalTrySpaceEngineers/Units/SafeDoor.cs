@@ -1,9 +1,11 @@
+using Sandbox.ModAPI.Ingame;
+
 namespace IngameScript
 {
     internal class SafeDoor
     {
         private readonly IMyDoor _door;
-        public int _openDoorTimer;
+        private int _openDoorTimer;
         public SafeDoor(IMyDoor door)
         {
             _door = door;
@@ -20,13 +22,15 @@ namespace IngameScript
                 case DoorStatus.Closed:
                     _openDoorTimer = 0;
                     break;
+                case DoorStatus.Opening:
+                case DoorStatus.Closing:
+                default:
+                    break;
             }
 
-            if (_openDoorTimer > 1)
-            {
-                _openDoorTimer = 0;
-                _door.CloseDoor();
-            }
+            if (_openDoorTimer <= 1) return;
+            _openDoorTimer = 0;
+            _door.CloseDoor();
         }
     }
 }

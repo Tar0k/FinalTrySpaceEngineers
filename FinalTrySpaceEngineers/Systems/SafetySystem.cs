@@ -1,27 +1,32 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Sandbox.ModAPI.Ingame;
+using Sandbox.ModAPI.Interfaces;
+using SpaceEngineers.Game.ModAPI.Ingame;
+
 namespace IngameScript
 {
     internal class SafetySystem
     {
-        private readonly Program _program;
         private readonly List<IMyTerminalBlock> _safetyBlocks = new List<IMyTerminalBlock>();
         private readonly List<IMyLargeTurretBase> _turrets = new List<IMyLargeTurretBase>();
         private readonly List<IMySafeZoneBlock> _safeZoneBlocks = new List<IMySafeZoneBlock>();
         private readonly List<IMyDoor> _doors = new List<IMyDoor>();
         private readonly List<SafeDoor> _safeDoors = new List<SafeDoor>();
         private bool _alarmPrevState;
-        private DateTime _lastAlarm = new DateTime();
+        private DateTime _lastAlarm;
         private bool ActivateSafeZone { get; }
         private bool _safeZoneActivated;
 
 
         public SafetySystem(Program program, string safetyGroupName = "", bool allTurrets = true, bool activateSafeZone = false)
         {
-            _program = program;
             ActivateSafeZone = activateSafeZone;
             
             if (safetyGroupName == string.Empty) return;
 
-            var safeGroup = _program.GridTerminalSystem.GetBlockGroupWithName(safetyGroupName);
+            var safeGroup = program.GridTerminalSystem.GetBlockGroupWithName(safetyGroupName);
             safeGroup.GetBlocks(_safetyBlocks);
             safeGroup.GetBlocksOfType(_safeZoneBlocks);
             safeGroup.GetBlocksOfType(_doors);
@@ -31,11 +36,8 @@ namespace IngameScript
                 _safeDoors.Add(new SafeDoor(door));
             }
             
-
-
-            if (allTurrets) _program.GridTerminalSystem.GetBlocksOfType(_turrets); // Со всей базы
+            if (allTurrets) program.GridTerminalSystem.GetBlocksOfType(_turrets); // Со всей базы
             else _turrets = _safetyBlocks.OfType<IMyLargeTurretBase>().ToList(); // Только из safety группы
-            
             Monitoring();
         }
         
@@ -46,7 +48,7 @@ namespace IngameScript
         /// <summary>
         /// Срабатывает только при срабатывании тревоги на один цикл.
         /// </summary>
-        public bool AlarmTriggeredNow { get; private set; }
+        private bool AlarmTriggeredNow { get; set; }
         
         
         /// <summary>

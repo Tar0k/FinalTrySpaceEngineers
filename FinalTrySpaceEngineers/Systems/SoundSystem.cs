@@ -1,14 +1,15 @@
+using System.Collections.Generic;
+using SpaceEngineers.Game.ModAPI.Ingame;
+
 namespace IngameScript
 {
     internal class SoundSystem
     {
-        private readonly Program _program;
         private readonly List<IMySoundBlock> _soundBlocks = new List<IMySoundBlock>();
 
         public SoundSystem(Program program)
         {
-            _program = program;
-            _program.GridTerminalSystem.GetBlocksOfType(_soundBlocks);
+            program.GridTerminalSystem.GetBlocksOfType(_soundBlocks);
             Default();
         }
         

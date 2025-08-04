@@ -1,14 +1,16 @@
+using System.Collections.Generic;
+using SpaceEngineers.Game.ModAPI.Ingame;
+using VRageMath;
+
 namespace IngameScript
 {
     internal class LightSystem
     {
-        private readonly Program _program;
         private readonly List<IMyInteriorLight> _lights = new List<IMyInteriorLight>();
 
         public LightSystem(Program program)
         {
-            _program = program;
-            _program.GridTerminalSystem.GetBlocksOfType(_lights);
+            program.GridTerminalSystem.GetBlocksOfType(_lights);
             Default();
         }
 
@@ -39,7 +41,7 @@ namespace IngameScript
 
         public void AlarmOff() => Default();
 
-        public void Default()
+        private void Default()
         {
             foreach (var light in _lights)
             {

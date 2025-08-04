@@ -2,24 +2,22 @@ namespace IngameScript
 {
     internal class CoreSystem
     {
-        private Program _program;
-        public readonly SafetySystem SafetySystem;
+        private readonly SafetySystem _safetySystem;
         private readonly LightSystem _lightSystem;
         private readonly SoundSystem _soundSystem;
 
         public CoreSystem(Program program)
         {
-            _program = program;
-            SafetySystem = new SafetySystem(_program, safetyGroupName: "Signal lamp", activateSafeZone: true);
-            _soundSystem = new SoundSystem(_program);
-            _lightSystem = new LightSystem(_program);
+            _safetySystem = new SafetySystem(program, safetyGroupName: "Signal lamp", activateSafeZone: true);
+            _soundSystem = new SoundSystem(program);
+            _lightSystem = new LightSystem(program);
         }
 
         public void Monitoring()
         {
-            SafetySystem.Monitoring();
+            _safetySystem.Monitoring();
             
-            if (SafetySystem.AlarmStatus)
+            if (_safetySystem.AlarmStatus)
             {
                 _lightSystem.AlarmOn();
                 _soundSystem.AlarmOn();
