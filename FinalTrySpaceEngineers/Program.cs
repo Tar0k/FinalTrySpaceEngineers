@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
+using IngameScript.Systems;
 using VRage;
 using VRage.Collections;
 using VRage.Game;
@@ -22,6 +23,12 @@ namespace IngameScript
 {
     public partial class Program : MyGridProgram
     {
+        private readonly List<IMyTerminalBlock> _allBlocks = new List<IMyTerminalBlock>();
+        private readonly IMyTextSurface _plcScreen;
+        private readonly IMyTextPanel _debugScreen;
+        private const string DebugDisplayName = "[NEW BASE] Debug display";
+        private readonly CoreSystem _coreSystem;
+        
         // This file contains your actual script.
         //
         // You can either keep all your code here, or you can create separate
@@ -34,6 +41,7 @@ namespace IngameScript
 
         public Program()
         {
+            
             // The constructor, called only once every session and
             // always before any other method is called. Use it to
             // initialize your script. 
@@ -44,6 +52,26 @@ namespace IngameScript
             // It's recommended to set Runtime.UpdateFrequency 
             // here, which will allow your script to run itself without a 
             // timer block.
+            
+            _coreSystem = new CoreSystem(program: this);
+        
+        
+            var debugText = string.Empty;
+            GridTerminalSystem.GetBlocks(_allBlocks);
+            _plcScreen = Me.GetSurface(0);
+            if (_allBlocks.FirstOrDefault(block => block.CustomName == DebugDisplayName) == null)
+                debugText += $"Не могу найти панель с именем {DebugDisplayName}\n";
+            else
+            {
+                debugText += $"Дисплей для отладки с именем {DebugDisplayName} найден.\n";
+                _debugScreen = GridTerminalSystem.GetBlockWithName(DebugDisplayName) as IMyTextPanel;
+                _debugScreen?.WriteText("Журнал срабатывания тревог:\n");
+            }
+        
+            _plcScreen.WriteText(debugText);
+
+            Runtime.UpdateFrequency = UpdateFrequency.Update100;
+            
         }
 
         public void Save()
