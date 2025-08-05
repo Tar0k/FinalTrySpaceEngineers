@@ -1,13 +1,12 @@
 ﻿using Sandbox.ModAPI.Ingame;
 using System.Collections.Generic;
-using System.Linq;
+
 
 namespace IngameScript
 {
     public abstract partial class Program : MyGridProgram
     {
-        private readonly List<IMyTerminalBlock> _allBlocks = new List<IMyTerminalBlock>();
-        private const string DebugDisplayName = "[NEW BASE] Debug display";
+        private readonly CoreSystem _coreSystem;
         
         // This file contains your actual script.
         //
@@ -33,22 +32,7 @@ namespace IngameScript
             // here, which will allow your script to run itself without a 
             // timer block.
             
-            // _coreSystem = new CoreSystem(program: this);
-        
-        
-            var debugText = string.Empty;
-            GridTerminalSystem.GetBlocks(_allBlocks);
-            var plcScreen = Me.GetSurface(0);
-            if (_allBlocks.FirstOrDefault(block => block.CustomName == DebugDisplayName) == null)
-                debugText += $"Не могу найти панель с именем {DebugDisplayName}\n";
-            else
-            {
-                debugText += $"Дисплей для отладки с именем {DebugDisplayName} найден.\n";
-                var debugScreen = GridTerminalSystem.GetBlockWithName(DebugDisplayName) as IMyTextPanel;
-                debugScreen?.WriteText("Журнал срабатывания тревог:\n");
-            }
-        
-            plcScreen.WriteText(debugText);
+            _coreSystem = new CoreSystem(program: this);
 
             Runtime.UpdateFrequency = UpdateFrequency.Update100;
             
@@ -75,6 +59,24 @@ namespace IngameScript
             // 
             // The method itself is required, but the arguments above
             // can be removed if not needed.
+
+            switch (updateSource)
+            {
+                case UpdateType.Update100:
+                    _coreSystem.Update();
+                    break;
+                case UpdateType.None:
+                case UpdateType.Terminal:
+                case UpdateType.Trigger:
+                case UpdateType.Mod:
+                case UpdateType.Script:
+                case UpdateType.Update1:
+                case UpdateType.Update10:
+                case UpdateType.Once:
+                case UpdateType.IGC:
+                default:
+                    break;
+            }
         }
     }
 }
