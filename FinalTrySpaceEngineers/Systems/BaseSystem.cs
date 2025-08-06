@@ -19,7 +19,7 @@ namespace IngameScript
 
         
         // Метод обновления данных в системе.
-        protected abstract void Update();
+        public abstract void Update();
 
         public override string ToString()
         {

@@ -3,30 +3,33 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Sandbox.ModAPI.Ingame;
+using VRage.Game.GUI.TextPanel;
 
 namespace IngameScript
 {
-    public class LogSystem : BaseSystem
+    public class LogSystem : BaseSystem, IDisposable
     {
+        private readonly CoreSystem _coreSystem;
+        
         private readonly List<IMyTextPanel> _logPanels;
         private readonly Queue<LogMessage> _logMessages = new Queue<LogMessage>();
         private readonly int _maxMessages;
-
         private readonly List<SystemAlarm> _alarms = new List<SystemAlarm>();
+        private bool _firstRun = true;
         
         public event Action<AlarmMessage> SystemAlarmTriggered;
         
         
         public LogSystem(Program program, CoreSystem core, int maxMessages = 200)
         {
+            _maxMessages = maxMessages;
             var panels = new List<IMyTextPanel>();
             program.GridTerminalSystem.GetBlocksOfType(panels);
             _logPanels = panels.Where(p => p.CustomData.Contains(RefCustomData)).ToList();
             
-            ConfigurePanels();
-            _maxMessages = maxMessages;
-
-            core.UpdateSystems += Update;
+            ConfigurePanels(_logPanels);
+            _coreSystem = core;
+            _coreSystem.UpdateSystems += Update;
         }
 
         public void WriteText(AlarmMessage message)
@@ -67,7 +70,7 @@ namespace IngameScript
             if (_logPanels.Count > _maxMessages) _logMessages.Dequeue();
         }
 
-        protected override void Update()
+        public override void Update()
         {
             CheckSystemState();
             
@@ -81,26 +84,35 @@ namespace IngameScript
             }
         }
 
-        private void ConfigurePanels()
-        {
-            foreach (var logPanel in _logPanels)
-            {
-                logPanel.FontSize = 10;
-                logPanel.TextPadding = 3;
-            }
-        }
-
         // Проверяет состояние системы и информирует подписчиков об изменении
         private void CheckSystemState()
         {
             // Сохраняем тревоги с предыдущего цикла (до обработки)
             var previousAlarms = new List<SystemAlarm>(_alarms);
             
+            // Проверка при первом запуске
+            if (_firstRun) CheckFirstRun();
             // Проверка и обновление списка текущих тревог
             CheckAvailablePanels();
             
             // Вызов событий для обновлений в списке тревог
             InvokeNewAlarms(previousAlarms);
+        }
+
+        private void CheckFirstRun()
+        {
+            if (_firstRun && _logPanels.Count > 0)
+            {
+                SystemAlarmTriggered?.Invoke(new AlarmMessage
+                {
+                    AlarmCode = "STARTUP INFO",
+                    Message = $"Инициализировано {_logPanels.Count} панелей",
+                    System = this,
+                    Type = MessageType.Warning,
+                    IsActive = true
+                });
+            }
+            _firstRun = false;
         }
 
         private void CheckAvailablePanels()
@@ -111,7 +123,7 @@ namespace IngameScript
                     Message = $"Не найдено панелей с системой \"{RefCustomData}\" в CustomData",
                     AlarmCode = "NoPanels",
                     System = this,
-                    Type = MessageType.Info
+                    Type = MessageType.Warning
                 });
             else if (_alarms.Select(a => a.AlarmCode).Contains("NoPanels"))
                 _alarms.RemoveAll(a => a.AlarmCode == "NoPanels");
@@ -154,6 +166,22 @@ namespace IngameScript
                         IsActive = isActive,
                     };
             }
+        }
+        
+        // Настройка параметров панелей
+        private static void ConfigurePanels(List<IMyTextPanel> logPanels)
+        {
+            foreach (var logPanel in logPanels)
+            {
+                logPanel.ContentType = ContentType.TEXT_AND_IMAGE;
+                logPanel.FontSize = 10;
+                logPanel.TextPadding = 3;
+            }
+        }
+
+        public void Dispose()
+        {
+            _coreSystem.UpdateSystems -= Update;
         }
     }
 }

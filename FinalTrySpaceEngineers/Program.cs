@@ -65,9 +65,13 @@ namespace IngameScript
                 case UpdateType.Update100:
                     _coreSystem.Update();
                     break;
-                case UpdateType.None:
+                
                 case UpdateType.Terminal:
                 case UpdateType.Trigger:
+                    _coreSystem.ExecuteCommand(argument);
+                    break;
+                
+                case UpdateType.None:
                 case UpdateType.Mod:
                 case UpdateType.Script:
                 case UpdateType.Update1:
