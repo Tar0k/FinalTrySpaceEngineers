@@ -1,16 +1,29 @@
+using System.Collections.Generic;
+
 namespace IngameScript
 {
     public abstract class BaseSystem
     {
-        private readonly string _systemName = string.Empty;
+        public BaseSystem()
+        {
+            SystemName = GetType().Name;
+        }
 
+        // Название системы для отображения в UI
+        protected string SystemName { get; set; }
+
+        // Ссылочное название системы в CustomData для определения принадлежности
         protected string RefCustomData { get; set; } = nameof(ToString);
+        // Текущий статус системы
+        public SystemStates SystemState { get; private set; }
 
+        
+        // Метод обновления данных в системе.
         protected abstract void Update();
 
         public override string ToString()
         {
-            return string.IsNullOrEmpty(_systemName) ? GetType().Name : _systemName;
+            return SystemName;
         }
     }
 }
