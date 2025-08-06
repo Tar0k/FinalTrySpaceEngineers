@@ -22,6 +22,7 @@ namespace IngameScript
         
         public LogSystem(Program program, CoreSystem core, int maxMessages = 200)
         {
+            RefCustomData = "LogSystem";
             _maxMessages = maxMessages;
             var panels = new List<IMyTextPanel>();
             program.GridTerminalSystem.GetBlocksOfType(panels);
@@ -37,7 +38,7 @@ namespace IngameScript
             WriteText(text: message.Message, system: message.System, isActive: message.IsActive);
         }
 
-        private void WriteText(string text, BaseSystem system, bool? isActive)
+        public void WriteText(string text, BaseSystem system, bool? isActive)
         {
             if (isActive.HasValue)
             {
@@ -64,6 +65,7 @@ namespace IngameScript
                 {
                     Message = text,
                     System = system.ToString(),
+                    OccurrenceTime = DateTime.Now,
                 });
             }
             
@@ -174,7 +176,7 @@ namespace IngameScript
             foreach (var logPanel in logPanels)
             {
                 logPanel.ContentType = ContentType.TEXT_AND_IMAGE;
-                logPanel.FontSize = 10;
+                logPanel.FontSize = 0.8f;
                 logPanel.TextPadding = 3;
             }
         }
