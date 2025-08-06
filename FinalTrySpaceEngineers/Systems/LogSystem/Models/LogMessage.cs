@@ -21,11 +21,10 @@ namespace IngameScript
                 str.Append(' ');
                 str.Append(OccurrenceTime.Value.ToShortTimeString());
             }
-            if (EndTime != null)
-            {
-                str.Append(' ');
-                str.Append(EndTime.Value.ToShortTimeString());
-            }
+
+            if (EndTime == null) return str.ToString();
+            str.Append(' ');
+            str.Append(EndTime.Value.ToShortTimeString());
             return str.ToString();
         }
     }

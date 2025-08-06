@@ -33,8 +33,8 @@ namespace IngameScript
         {
             WriteText(text: message.Message, system: message.System, isActive: message.IsActive);
         }
-        
-        public void WriteText(string text, BaseSystem system, bool? isActive)
+
+        private void WriteText(string text, BaseSystem system, bool? isActive)
         {
             if (isActive.HasValue)
             {
@@ -108,6 +108,7 @@ namespace IngameScript
             if (_logPanels.Count <= 0 && !_alarms.Select(a => a.AlarmCode).Contains("NoPanels"))
                 _alarms.Add(new SystemAlarm
                 {
+                    Message = $"Не найдено панелей с системой \"{RefCustomData}\" в CustomData",
                     AlarmCode = "NoPanels",
                     System = this,
                     Type = MessageType.Info
@@ -124,7 +125,7 @@ namespace IngameScript
                              .Select(prevAlarm => prevAlarm.AlarmCode)
                              .Contains(currentAlarm.AlarmCode)))
             {
-                SystemAlarmTriggered?.Invoke(FormAlarmMessage(currentAlarm.Message, true));
+                SystemAlarmTriggered?.Invoke(FormAlarmMessage(currentAlarm, true));
             }
 
             // Извещаем об ушедших тревогах
@@ -133,25 +134,20 @@ namespace IngameScript
                              .Select(currentAlarm => currentAlarm.AlarmCode)
                              .Contains(previousAlarm.AlarmCode)))
             {
-                SystemAlarmTriggered?.Invoke(FormAlarmMessage(previousAlarm.Message, false));
+                SystemAlarmTriggered?.Invoke(FormAlarmMessage(previousAlarm, false));
             }
         }
 
-        private AlarmMessage FormAlarmMessage(string alarm, bool isActive)
+        private AlarmMessage FormAlarmMessage(SystemAlarm alarm, bool isActive)
         {
-            switch (alarm)
+            switch (alarm.AlarmCode)
             {
                 case "NoPanels":
-                    return new AlarmMessage
-                    {
-                        Message = $"Не найдено панелей с системой \"{RefCustomData}\" в CustomData",
-                        Type = MessageType.Warning,
-                        System = this,
-                        IsActive = isActive,
-                    };
+                    return new AlarmMessage(alarm, isActive);
                 default:
                     return new AlarmMessage
                     {
+                        AlarmCode = alarm.AlarmCode,
                         Message = $"Неизвестная ошибка в системе \"{SystemName}\"",
                         Type = MessageType.Warning,
                         System = this,
