@@ -173,6 +173,7 @@ namespace IngameScript
                 case AlarmCodes.StartupInfo:
                 case AlarmCodes.InitCount:
                 case AlarmCodes.CommandInfo:
+                case AlarmCodes.EnemyDetected:
                 default:
                     return new AlarmMessage(alarm, isActive);
             }

@@ -6,6 +6,7 @@ namespace IngameScript
         StartupInfo,
         InitCount,
         CommandInfo,
+        EnemyDetected,
         Unknown
     }
 }

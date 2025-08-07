@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace IngameScript
 {
-    public class CoreSystem : BaseSystem
+    public class CoreSystem : BaseSystem, IDisposable
     {
         public event Action UpdateSystems;
         public event Action<AlarmMessage> AlarmTriggered;
@@ -12,6 +12,7 @@ namespace IngameScript
         private readonly LogSystem _logSystem;
         private readonly LightSystem _lightSystem;
         private readonly SoundSystem _soundSystem;
+        private readonly SafetySystem _safetySystem;
         private readonly IEnumerable<BaseSystem> _systems;
 
         public CoreSystem(Program program)
@@ -22,11 +23,12 @@ namespace IngameScript
             
             _lightSystem = new LightSystem(program, this, _logSystem);
             _soundSystem = new SoundSystem(program, this, _logSystem);
+            _safetySystem = new SafetySystem(program, this, _logSystem);
+            _safetySystem.EnemyDetected += OnSystemAlarmTriggered;
             
-
             _systems = new List<BaseSystem>
             {
-                _logSystem, _lightSystem,  _soundSystem
+                _logSystem, _lightSystem,  _soundSystem, _safetySystem
             };
         }
         
@@ -91,6 +93,11 @@ namespace IngameScript
                 AlarmTriggered?.Invoke(message);
             }
         }
-        
+
+        public void Dispose()
+        {
+            _logSystem.SystemAlarmTriggered -= OnSystemAlarmTriggered;
+            _safetySystem.EnemyDetected -= OnSystemAlarmTriggered;
+        }
     }
 }
