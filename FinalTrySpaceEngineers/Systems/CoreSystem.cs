@@ -58,19 +58,7 @@ namespace IngameScript
         {
             // Проверки полученной команды на формат
             var cmd = command.Split(' ');
-            if (cmd.Length != 2)
-            {
-               Logger?.WriteText(new AlarmMessage
-                {
-                    AlarmCode = AlarmCodes.CommandInfo,
-                    Message = $"Получена команда в неверном формате: \"{command}\"",
-                    System = this,
-                    Type = MessageType.Warning,
-                    IsActive = true
-                });
-                return false;
-            }
-
+            
             if (!_systems.Select(s => s.RefCustomData).Contains(cmd[0]))
             {
                 Logger?.WriteText(new AlarmMessage
@@ -86,7 +74,7 @@ namespace IngameScript
             
             // Вызываем выполнение команды для конкретной системы
             var system = _systems.First(s => s.RefCustomData == cmd[0]);
-            var result = system.ExecuteCommand(cmd[1]);
+            var result = system.ExecuteCommand(command);
             return result;
         }
 
