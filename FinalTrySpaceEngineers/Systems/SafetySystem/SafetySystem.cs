@@ -55,34 +55,38 @@ namespace IngameScript
             
             if (CheckTurrets())
             {
-                _enemyDetected = true;
-
-                var alarmMessage = new AlarmMessage
+                if (!_enemyDetected)
                 {
-                    AlarmCode = AlarmCodes.EnemyDetected,
-                    Message = "Обнаружен противник",
-                    System = this,
-                    Type = MessageType.Error,
-                    IsActive = true
-                };
-                EnemyDetected?.Invoke(alarmMessage);
-                _logger.WriteText(alarmMessage);
+                    var alarmMessage = new AlarmMessage
+                    {
+                        AlarmCode = AlarmCodes.EnemyDetected,
+                        Message = "Обнаружен противник",
+                        System = this,
+                        Type = MessageType.Error,
+                        IsActive = true
+                    };
+                    EnemyDetected?.Invoke(alarmMessage);
+                    _logger.WriteText(alarmMessage);
+                    _enemyDetected = true;
+                }
             }
             else
             {
-                if (!_enemyDetected) return;
-                var alarmMessage = new AlarmMessage
+                if (_enemyDetected)
                 {
-                    AlarmCode = AlarmCodes.EnemyDetected,
-                    Message = "Обнаружен противник",
-                    System = this,
-                    Type = MessageType.Error,
-                    IsActive = false
-                };
-                EnemyDetected?.Invoke(alarmMessage);
-                _logger.WriteText(alarmMessage);
+                    var alarmMessage = new AlarmMessage
+                    {
+                        AlarmCode = AlarmCodes.EnemyDetected,
+                        Message = "Обнаружен противник",
+                        System = this,
+                        Type = MessageType.Error,
+                        IsActive = false
+                    };
+                    EnemyDetected?.Invoke(alarmMessage);
+                    _logger.WriteText(alarmMessage);
                 
-                _enemyDetected = false;
+                    _enemyDetected = false;
+                }
             }
             UpdateDoors?.Invoke();
         }

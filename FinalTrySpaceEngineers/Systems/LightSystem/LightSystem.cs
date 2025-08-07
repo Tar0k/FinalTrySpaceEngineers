@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using SpaceEngineers.Game.ModAPI.Ingame;
+using VRage;
 using VRageMath;
 
 namespace IngameScript

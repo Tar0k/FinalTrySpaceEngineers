@@ -13,17 +13,18 @@ namespace IngameScript
         {
             AvailableCommands = new Dictionary<string, Action>();
             SystemName = GetType().Name;
+            RefCustomData = GetType().Name;
         }
 
         // Название системы для отображения в UI
         public string SystemName { get; set; }
 
         // Ссылочное название системы в CustomData для определения принадлежности
-        protected string RefCustomData { get; set; } = nameof(ToString);
+        public string RefCustomData { get; set; }
         // Текущий статус системы
         public virtual SystemStates SystemState { get; protected set; } = SystemStates.Active;
 
-        public virtual void ExecuteCommand(string command)
+        public virtual bool ExecuteCommand(string command)
         {
             // Проверки полученной команды на формат
             var cmd = command.Split(' ');
@@ -37,7 +38,7 @@ namespace IngameScript
                     Type = MessageType.Warning,
                     IsActive = true
                 });
-                return;
+                return false;
             }
 
             if (cmd[0] != SystemName)
@@ -50,7 +51,7 @@ namespace IngameScript
                     Type = MessageType.Warning,
                     IsActive = true
                 });
-                return;
+                return false;
             }
             
             // Исполнение команды
@@ -66,16 +67,17 @@ namespace IngameScript
                     Type = MessageType.Info,
                     IsActive = true
                 });
+                return true;
             }
-            else
-                Logger?.WriteText(new AlarmMessage
-                {
-                    AlarmCode = AlarmCodes.CommandInfo,
-                    Message = $"Введена неизвестная команда {command}",
-                    System = this,
-                    Type = MessageType.Warning,
-                    IsActive = true
-                });
+            Logger?.WriteText(new AlarmMessage
+            {
+                AlarmCode = AlarmCodes.CommandInfo,
+                Message = $"Введена неизвестная команда {command}",
+                System = this,
+                Type = MessageType.Warning,
+                IsActive = true
+            });
+            return false;
         }
 
         public virtual IEnumerable<string> GetCommands()
@@ -88,7 +90,7 @@ namespace IngameScript
 
         public override string ToString()
         {
-            return SystemName;
+            return GetType().Name;
         }
     }
 }

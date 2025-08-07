@@ -54,7 +54,7 @@ namespace IngameScript
             UpdateSystems?.Invoke();
         }
 
-        public override void ExecuteCommand(string command)
+        public override bool ExecuteCommand(string command)
         {
             // Проверки полученной команды на формат
             var cmd = command.Split(' ');
@@ -68,10 +68,10 @@ namespace IngameScript
                     Type = MessageType.Warning,
                     IsActive = true
                 });
-                return;
+                return false;
             }
 
-            if (!_systems.Select(s => s.SystemName).Contains(cmd[0]))
+            if (!_systems.Select(s => s.RefCustomData).Contains(cmd[0]))
             {
                 Logger?.WriteText(new AlarmMessage
                 {
@@ -81,11 +81,13 @@ namespace IngameScript
                     Type = MessageType.Warning,
                     IsActive = true
                 });
-                return;
+                return false;
             }
             
             // Вызываем выполнение команды для конкретной системы
-            _systems.First(s => s.SystemName == cmd[0]).ExecuteCommand(cmd[1]);
+            var system = _systems.First(s => s.RefCustomData == cmd[0]);
+            var result = system.ExecuteCommand(cmd[1]);
+            return result;
         }
 
         private void OnSystemAlarmTriggered(AlarmMessage message)

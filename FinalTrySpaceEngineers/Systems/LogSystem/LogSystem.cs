@@ -20,10 +20,9 @@ namespace IngameScript
         public event Action<AlarmMessage> SystemAlarmTriggered;
         
         
-        public LogSystem(Program program, CoreSystem core, int maxMessages = 200)
+        public LogSystem(Program program, CoreSystem core, int maxMessages = 20)
         {
             SystemName = "Журнал сообщений";
-            RefCustomData = "LogSystem";
             _maxMessages = maxMessages;
             var panels = new List<IMyTextPanel>();
             program.GridTerminalSystem.GetBlocksOfType(panels);
@@ -71,7 +70,7 @@ namespace IngameScript
                 });
             }
             
-            if (_logPanels.Count > _maxMessages) _logMessages.Dequeue();
+            if (_logMessages.Count > _maxMessages) _logMessages.Dequeue();
             return true;
         }
         
@@ -85,7 +84,7 @@ namespace IngameScript
                 var str = new StringBuilder();
                 str.AppendLine("ЖУРНАЛ СООБЩЕНИЙ");
                 str.AppendLine("----------------");
-                str.AppendLine(string.Join(Environment.NewLine, _logMessages));
+                str.AppendLine(string.Join(Environment.NewLine, _logMessages.Reverse()));
                 textPanel.WriteText(str.ToString());
             }
         }
@@ -185,7 +184,7 @@ namespace IngameScript
             foreach (var logPanel in logPanels)
             {
                 logPanel.ContentType = ContentType.TEXT_AND_IMAGE;
-                logPanel.FontSize = 0.8f;
+                logPanel.FontSize = 0.6f;
                 logPanel.TextPadding = 3;
             }
         }

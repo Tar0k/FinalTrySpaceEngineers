@@ -69,7 +69,7 @@ namespace IngameScript
                 case UpdateType.Trigger:
                     _coreSystem.ExecuteCommand(argument);
                     break;
-                
+
                 case UpdateType.None:
                 case UpdateType.Mod:
                 case UpdateType.Script:
