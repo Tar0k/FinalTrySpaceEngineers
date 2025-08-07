@@ -14,6 +14,7 @@ namespace IngameScript
         private readonly List<IMyInteriorLight> _lights = new List<IMyInteriorLight>();
         private bool _firstRun = true;
         private bool _lightOn = true;
+        private LightStates _lightState; 
 
 
         private LightSystem(Program program, CoreSystem core)
@@ -49,6 +50,8 @@ namespace IngameScript
                 },
                 { "SwitchAlarm", SwitchAlarm }
             };
+            
+            Default();
         }
         
         public LightSystem(Program program, CoreSystem core, ILogger logger) : this(program, core)
@@ -61,15 +64,7 @@ namespace IngameScript
         {
             get
             {
-                if (_lights.All(l => l.Enabled))
-                {
-                    return LightStates.On;
-                }
-                if (_lights.All(l => !l.Enabled))
-                {
-                    return LightStates.Off;
-                }
-                return LightStates.Mixed;
+                return _lightState;
             }
             set
             {
@@ -124,6 +119,7 @@ namespace IngameScript
             }
             
             _lightOn = true;
+            _lightState = LightStates.On;
             
             _logger?.WriteText(new AlarmMessage
             {
@@ -144,6 +140,7 @@ namespace IngameScript
             }
 
             _lightOn = false;
+            _lightState = LightStates.Off;
 
             _logger?.WriteText(new AlarmMessage
             {
@@ -186,7 +183,7 @@ namespace IngameScript
                 light.Color = Color.Red;
                 light.BlinkLength = 3;
             }
-            LightState = LightStates.Alarm;
+            _lightState = LightStates.Alarm;
 
         }
 
@@ -205,7 +202,8 @@ namespace IngameScript
                 light.Color = Color.White;
                 light.BlinkLength = 0;
             }
-            LightState = LightStates.Default;
+
+            _lightState = LightStates.Default;
         }
 
         public override void Update()
