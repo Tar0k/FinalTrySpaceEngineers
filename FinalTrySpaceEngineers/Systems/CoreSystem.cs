@@ -23,9 +23,29 @@ namespace IngameScript
 
             _availableCommands = new Dictionary<string, Action>
             {
-                { "lightSystem TurnOn", _lightSystem.TurnOn },
-                { "lightSystem TurnOff", _lightSystem.TurnOff },
-                { "lightSystem SwitchLight", _lightSystem.SwitchLight }
+                { "lightSystem TurnOn", () =>
+                    {
+                        _lightSystem.LightState = LightStates.On;
+                    }
+                },
+                { "lightSystem TurnOff", () =>
+                    {
+                        _lightSystem.LightState = LightStates.Off;
+                    }
+                },
+                { "lightSystem SwitchLight", _lightSystem.SwitchLight },
+                { "lightSystem Default", () => 
+                    {
+                        _lightSystem.LightState = LightStates.Default;
+                    }
+                },
+                {
+                    "lightSystem AlarmOn", () =>
+                    {
+                        _lightSystem.LightState = LightStates.Alarm;
+                    }
+                },
+                { "lightSystem SwitchAlarm", _lightSystem.SwitchAlarm }
             };
         }
 
@@ -42,15 +62,20 @@ namespace IngameScript
             else
                 _logSystem.WriteText(new AlarmMessage
                 {
-                    AlarmCode = "COMMAND_INFO",
+                    AlarmCode = AlarmCodes.CommandInfo,
                     Message = $"Введена неизвестная команда {command}",
-                    System = this
+                    System = this,
+                    Type = MessageType.Warning,
+                    IsActive = true
                 });
         }
 
         private void OnSystemAlarmTriggered(AlarmMessage message)
         {
-            _logSystem.WriteText(message);
+            if (message.Type == MessageType.Error && message.IsActive)
+            {
+                AlarmTriggered?.Invoke(message);
+            }
         }
         
     }

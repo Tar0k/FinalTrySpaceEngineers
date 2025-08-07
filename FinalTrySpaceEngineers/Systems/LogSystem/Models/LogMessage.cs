@@ -5,6 +5,7 @@ namespace IngameScript
 {
     public class LogMessage
     {
+        public AlarmCodes AlarmCode { get; set; }
         public string System { get; set; }
         public string Message { get; set; }
         public DateTime? OccurrenceTime { get; set; }

@@ -7,7 +7,7 @@ using VRage.Game.GUI.TextPanel;
 
 namespace IngameScript
 {
-    public class LogSystem : BaseSystem, IDisposable
+    public class LogSystem : BaseSystem, ILogger, IDisposable
     {
         private readonly CoreSystem _coreSystem;
         
@@ -107,7 +107,7 @@ namespace IngameScript
             {
                 SystemAlarmTriggered?.Invoke(new AlarmMessage
                 {
-                    AlarmCode = "STARTUP INFO",
+                    AlarmCode = AlarmCodes.StartupInfo,
                     Message = $"Инициализировано {_logPanels.Count} панелей",
                     System = this,
                     Type = MessageType.Warning,
@@ -119,16 +119,16 @@ namespace IngameScript
 
         private void CheckAvailablePanels()
         {
-            if (_logPanels.Count <= 0 && !_alarms.Select(a => a.AlarmCode).Contains("NoPanels"))
+            if (_logPanels.Count <= 0 && !_alarms.Select(a => a.AlarmCode).Contains(AlarmCodes.InitCount))
                 _alarms.Add(new SystemAlarm
                 {
                     Message = $"Не найдено панелей с системой \"{RefCustomData}\" в CustomData",
-                    AlarmCode = "NoPanels",
+                    AlarmCode = AlarmCodes.InitCount,
                     System = this,
                     Type = MessageType.Warning
                 });
-            else if (_alarms.Select(a => a.AlarmCode).Contains("NoPanels"))
-                _alarms.RemoveAll(a => a.AlarmCode == "NoPanels");
+            else if (_alarms.Select(a => a.AlarmCode).Contains(AlarmCodes.InitCount))
+                _alarms.RemoveAll(a => a.AlarmCode == AlarmCodes.InitCount);
         }
 
         private void InvokeNewAlarms(List<SystemAlarm> previousAlarms)
@@ -156,7 +156,7 @@ namespace IngameScript
         {
             switch (alarm.AlarmCode)
             {
-                case "NoPanels":
+                case AlarmCodes.InitCount:
                     return new AlarmMessage(alarm, isActive);
                 default:
                     return new AlarmMessage

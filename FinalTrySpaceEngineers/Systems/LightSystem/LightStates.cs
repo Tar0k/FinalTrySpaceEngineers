@@ -4,6 +4,8 @@ namespace IngameScript
     {
         On,
         Off,
-        Mixed
+        Alarm,
+        Mixed,
+        Default
     }
 }
