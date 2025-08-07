@@ -49,6 +49,10 @@ namespace IngameScript
         {
             if (_firstRun)
                 CheckFirstRun();
+            
+            CheckAvailableTurrets();
+            CheckAvailableSafeDoors();
+            
             if (CheckTurrets())
             {
                 _enemyDetected = true;
@@ -80,7 +84,6 @@ namespace IngameScript
                 
                 _enemyDetected = false;
             }
-            
             UpdateDoors?.Invoke();
         }
         
@@ -113,6 +116,36 @@ namespace IngameScript
                 }
             }  
             _firstRun = false;
+        }
+
+        private void CheckAvailableTurrets()
+        {
+            if (_turrets.Count <= 0)
+            {
+                _logger?.WriteText(new AlarmMessage
+                {
+                    AlarmCode = AlarmCodes.InitCount,
+                    Message = "Не найдены турели",
+                    System = this,
+                    Type = MessageType.Warning,
+                    IsActive = true
+                });
+            }
+        }
+        
+        private void CheckAvailableSafeDoors()
+        {
+            if (_safeDoors.Count <= 0)
+            {
+                _logger?.WriteText(new AlarmMessage
+                {
+                    AlarmCode = AlarmCodes.InitCount,
+                    Message = "Не найдены безопасные двери",
+                    System = this,
+                    Type = MessageType.Warning,
+                    IsActive = true
+                });
+            }
         }
 
         private void LogDoorStatusChanges(IMyDoor door)
