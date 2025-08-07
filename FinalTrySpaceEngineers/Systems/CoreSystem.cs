@@ -17,6 +17,8 @@ namespace IngameScript
 
         public CoreSystem(Program program)
         {
+            SystemName = "Центральная система";
+            
             _logSystem = new LogSystem(program, this);
             _logSystem.SystemAlarmTriggered += OnSystemAlarmTriggered;
             Logger = _logSystem;

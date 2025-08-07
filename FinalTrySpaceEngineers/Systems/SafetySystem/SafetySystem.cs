@@ -19,6 +19,7 @@ namespace IngameScript
         
         public SafetySystem(Program program, CoreSystem coreSystem, ILogger logger)
         {
+            SystemName = "Система безопасности";
             _coreSystem = coreSystem;
             _coreSystem.UpdateSystems += Update;
             

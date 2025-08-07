@@ -51,6 +51,7 @@ namespace IngameScript
 
         private SoundSystem(Program program, CoreSystem core)
         {
+            SystemName = "Звуковая система";
             program.GridTerminalSystem.GetBlocksOfType(_soundBlocks);
             _coreSystem = core;
             _coreSystem.UpdateSystems += Update;

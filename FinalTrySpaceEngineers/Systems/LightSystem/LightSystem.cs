@@ -17,6 +17,7 @@ namespace IngameScript
         
         private LightSystem(Program program, CoreSystem core)
         {
+            SystemName = "Управление светом";
             program.GridTerminalSystem.GetBlocksOfType(_lights);
             _coreSystem = core;
             _coreSystem.UpdateSystems += Update;

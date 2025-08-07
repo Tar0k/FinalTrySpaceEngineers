@@ -22,6 +22,7 @@ namespace IngameScript
         
         public LogSystem(Program program, CoreSystem core, int maxMessages = 200)
         {
+            SystemName = "Журнал сообщений";
             RefCustomData = "LogSystem";
             _maxMessages = maxMessages;
             var panels = new List<IMyTextPanel>();
@@ -34,12 +35,10 @@ namespace IngameScript
 
         public bool WriteText(AlarmMessage message)
         {
-            if (SystemState != SystemStates.Active) return false;
-            WriteText(text: message.Message, system: message.System, isActive: message.IsActive);
-            return true;
+            return SystemState == SystemStates.Active && WriteText(message.AlarmCode, message.Message, message.System, message.IsActive);
         }
 
-        public bool WriteText(string text, BaseSystem system, bool? isActive)
+        public bool WriteText(AlarmCodes alarmCode, string text,  BaseSystem system, bool? isActive)
         {
             if (SystemState != SystemStates.Active) return false;
             if (isActive.HasValue)
@@ -48,6 +47,7 @@ namespace IngameScript
                 {
                     _logMessages.Enqueue(new LogMessage
                     {
+                        AlarmCode = alarmCode,
                         Message = text,
                         System = system.ToString(),
                         OccurrenceTime = DateTime.Now,
