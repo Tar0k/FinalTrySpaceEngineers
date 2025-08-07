@@ -213,66 +213,6 @@ namespace IngameScript
             CheckAvailableLights();
             
         }
-
-        public override IEnumerable<string> GetCommands()
-        {
-            return AvailableCommands.Keys.Select(k => $"{SystemName} {k}");
-        }
-
-        public override void ExecuteCommand(string command)
-        {
-            // Проверки полученной команды на формат
-            var cmd = command.Split(' ');
-            if (cmd.Length != 2)
-            {
-                _logger?.WriteText(new AlarmMessage
-                {
-                    AlarmCode = AlarmCodes.CommandInfo,
-                    Message = $"Получена команда в неверном формате: \"{command}\"",
-                    System = this,
-                    Type = MessageType.Warning,
-                    IsActive = true
-                });
-                return;
-            }
-
-            if (cmd[0] != SystemName)
-            {
-                _logger?.WriteText(new AlarmMessage
-                {
-                    AlarmCode = AlarmCodes.CommandInfo,
-                    Message = $"Получена команда от другой системы: \"{command}\"",
-                    System = this,
-                    Type = MessageType.Warning,
-                    IsActive = true
-                });
-                return;
-            }
-            
-            // Исполнение команды
-            Action availableCommand;
-            if (AvailableCommands.TryGetValue(cmd[1], out availableCommand))
-            {
-                availableCommand.Invoke();
-                _logger?.WriteText(new AlarmMessage
-                {
-                    AlarmCode = AlarmCodes.CommandInfo,
-                    Message = $"Выполнена команда: \"{command}\"",
-                    System = this,
-                    Type = MessageType.Info,
-                    IsActive = true
-                });
-            }
-            else
-                _logger?.WriteText(new AlarmMessage
-                {
-                    AlarmCode = AlarmCodes.CommandInfo,
-                    Message = $"Введена неизвестная команда {command}",
-                    System = this,
-                    Type = MessageType.Warning,
-                    IsActive = true
-                });
-        }
         
         private void CheckFirstRun()
         {
@@ -283,7 +223,7 @@ namespace IngameScript
                     AlarmCode = AlarmCodes.StartupInfo,
                     Message = $"Инициализировано {_lights.Count} источников света",
                     System = this,
-                    Type = MessageType.Warning,
+                    Type = MessageType.Info,
                     IsActive = true
                 });
             }
@@ -297,7 +237,7 @@ namespace IngameScript
                 _logger?.WriteText(new AlarmMessage
                 {
                     AlarmCode = AlarmCodes.InitCount,
-                    Message = $"Инициализировано {_lights.Count} источников света",
+                    Message = "Не найдены источники света",
                     System = this,
                     Type = MessageType.Warning,
                     IsActive = true
@@ -308,6 +248,7 @@ namespace IngameScript
         public void Dispose()
         {
             _coreSystem.UpdateSystems -= Update;
+            _coreSystem.AlarmTriggered -= SwitchAlarm;
         }
     }
 }

@@ -4,7 +4,7 @@ using SpaceEngineers.Game.ModAPI.Ingame;
 
 namespace IngameScript
 {
-    internal class SoundSystem : BaseSystem
+    internal class SoundSystem : BaseSystem, IDisposable
     {
         private readonly CoreSystem _coreSystem;
         private readonly ILogger _logger;
@@ -87,6 +87,11 @@ namespace IngameScript
             };
             program.GridTerminalSystem.GetBlocksOfType(_soundBlocks);
             Default();
+        }
+
+        public SoundSystem(Program program, CoreSystem core, ILogger logger) : this(program, core)
+        {
+            _logger = logger;
         }
         
         public void TurnOn()
@@ -204,6 +209,47 @@ namespace IngameScript
 
         public override void Update()
         {
+            if (_firstRun)
+                CheckFirstRun();
+            CheckAvailableLights();
+
+        }
+        
+        private void CheckFirstRun()
+        {
+            if (_firstRun && _soundBlocks.Count > 0)
+            {
+                _logger?.WriteText(new AlarmMessage
+                {
+                    AlarmCode = AlarmCodes.StartupInfo,
+                    Message = $"Инициализировано {_soundBlocks.Count} источников света",
+                    System = this,
+                    Type = MessageType.Info,
+                    IsActive = true
+                });
+            }
+            _firstRun = false;
+        }
+
+        private void CheckAvailableLights()
+        {
+            if (_soundBlocks.Count <= 0)
+            {
+                _logger?.WriteText(new AlarmMessage
+                {
+                    AlarmCode = AlarmCodes.InitCount,
+                    Message = "Не найдено динамиков",
+                    System = this,
+                    Type = MessageType.Warning,
+                    IsActive = true
+                });
+            }
+        }
+
+        public void Dispose()
+        {
+            _coreSystem.UpdateSystems -= Update;
+            _coreSystem.AlarmTriggered -= SwitchAlarm;
         }
     }
 }

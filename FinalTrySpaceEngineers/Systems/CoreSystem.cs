@@ -11,6 +11,7 @@ namespace IngameScript
 
         private readonly LogSystem _logSystem;
         private readonly LightSystem _lightSystem;
+        private readonly SoundSystem _soundSystem;
         private readonly IEnumerable<BaseSystem> _systems;
 
         public CoreSystem(Program program)
@@ -20,10 +21,12 @@ namespace IngameScript
             Logger = _logSystem;
             
             _lightSystem = new LightSystem(program, this, _logSystem);
+            _soundSystem = new SoundSystem(program, this, _logSystem);
+            
 
             _systems = new List<BaseSystem>
             {
-                _logSystem, _lightSystem
+                _logSystem, _lightSystem,  _soundSystem
             };
         }
 
