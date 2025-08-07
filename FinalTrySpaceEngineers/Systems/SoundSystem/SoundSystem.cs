@@ -39,6 +39,9 @@ namespace IngameScript
                         break;
                     case SoundStates.Off:
                     case SoundStates.Mixed:
+                    case SoundStates.On:
+                        TurnOn();
+                        break;
                     default:
                         TurnOff();
                         break;
