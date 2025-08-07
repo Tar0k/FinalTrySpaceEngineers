@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace IngameScript
 {
@@ -10,43 +11,24 @@ namespace IngameScript
 
         private readonly LogSystem _logSystem;
         private readonly LightSystem _lightSystem;
-
-        private readonly Dictionary<string, Action> _availableCommands;
+        private readonly IEnumerable<BaseSystem> _systems;
 
         public CoreSystem(Program program)
         {
             _logSystem = new LogSystem(program, this);
             _logSystem.SystemAlarmTriggered += OnSystemAlarmTriggered;
             
-            _lightSystem = new LightSystem(program, this);
-            _lightSystem.SystemAlarmTriggered += OnSystemAlarmTriggered;
+            _lightSystem = new LightSystem(program, this, _logSystem);
 
-            _availableCommands = new Dictionary<string, Action>
+            _systems = new List<BaseSystem>
             {
-                { "lightSystem TurnOn", () =>
-                    {
-                        _lightSystem.LightState = LightStates.On;
-                    }
-                },
-                { "lightSystem TurnOff", () =>
-                    {
-                        _lightSystem.LightState = LightStates.Off;
-                    }
-                },
-                { "lightSystem SwitchLight", _lightSystem.SwitchLight },
-                { "lightSystem Default", () => 
-                    {
-                        _lightSystem.LightState = LightStates.Default;
-                    }
-                },
-                {
-                    "lightSystem AlarmOn", () =>
-                    {
-                        _lightSystem.LightState = LightStates.Alarm;
-                    }
-                },
-                { "lightSystem SwitchAlarm", _lightSystem.SwitchAlarm }
+                _logSystem, _lightSystem
             };
+        }
+
+        public override IEnumerable<string> GetCommands()
+        {
+            return Enumerable.Empty<string>();
         }
 
         public override void Update()
@@ -54,20 +36,38 @@ namespace IngameScript
             UpdateSystems?.Invoke();
         }
 
-        public void ExecuteCommand(string command)
+        public override void ExecuteCommand(string command)
         {
-            Action availableCommand;
-            if (_availableCommands.TryGetValue(command, out availableCommand))
-                availableCommand.Invoke();
-            else
-                _logSystem.WriteText(new AlarmMessage
+            // Проверки полученной команды на формат
+            var cmd = command.Split(' ');
+            if (cmd.Length != 2)
+            {
+                _logSystem?.WriteText(new AlarmMessage
                 {
                     AlarmCode = AlarmCodes.CommandInfo,
-                    Message = $"Введена неизвестная команда {command}",
+                    Message = $"Получена команда в неверном формате: \"{command}\"",
                     System = this,
                     Type = MessageType.Warning,
                     IsActive = true
                 });
+                return;
+            }
+
+            if (!_systems.Select(s => s.SystemName).Contains(cmd[0]))
+            {
+                _logSystem?.WriteText(new AlarmMessage
+                {
+                    AlarmCode = AlarmCodes.CommandInfo,
+                    Message = $"Получена команда для неизвестной системы: \"{command}\"",
+                    System = this,
+                    Type = MessageType.Warning,
+                    IsActive = true
+                });
+                return;
+            }
+            
+            // Вызываем выполнение команды для конкретной системы
+            _systems.First(s => s.SystemName == cmd[0]).ExecuteCommand(cmd[1]);
         }
 
         private void OnSystemAlarmTriggered(AlarmMessage message)

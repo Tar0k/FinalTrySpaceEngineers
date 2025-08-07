@@ -14,22 +14,52 @@ namespace IngameScript
         private readonly List<IMyInteriorLight> _lights = new List<IMyInteriorLight>();
         private bool _firstRun = true;
         private bool _lightOn = true;
-        
-        public LightSystem(Program program, CoreSystem core)
+
+        private readonly Dictionary<string, Action> _availableCommands;
+
+
+        private LightSystem(Program program, CoreSystem core)
         {
             program.GridTerminalSystem.GetBlocksOfType(_lights);
             _coreSystem = core;
             _coreSystem.UpdateSystems += Update;
             _coreSystem.AlarmTriggered += SwitchAlarm;
+            
+            _availableCommands = new Dictionary<string, Action>
+            {
+                { "TurnOn", () =>
+                    {
+                        LightState = LightStates.On;
+                    }
+                },
+                { "TurnOff", () =>
+                    {
+                        LightState = LightStates.Off;
+                    }
+                },
+                { "SwitchLight", SwitchLight },
+                { "Default", () => 
+                    {
+                        LightState = LightStates.Default;
+                    }
+                },
+                {
+                    "AlarmOn", () =>
+                    {
+                        LightState = LightStates.Alarm;
+                    }
+                },
+                { "SwitchAlarm", SwitchAlarm }
+            };
         }
         
         public LightSystem(Program program, CoreSystem core, ILogger logger) : this(program, core)
         {
             _logger = logger;
         }
-        
-        
-        public LightStates LightState
+
+
+        private LightStates LightState
         {
             get
             {
@@ -65,10 +95,8 @@ namespace IngameScript
             }
         }
 
-        public event Action<AlarmMessage> SystemAlarmTriggered;
-
         //Переключатель света
-        public void SwitchLight()
+        private void SwitchLight()
         {
             switch (LightState)
             {
@@ -90,7 +118,7 @@ namespace IngameScript
         }
 
         // Включить свет
-        public void TurnOn()
+        private void TurnOn()
         {
             foreach (var light in  _lights)
             {
@@ -110,7 +138,7 @@ namespace IngameScript
         }
 
         // Выключить свет
-        public void TurnOff()
+        private void TurnOff()
         {
             foreach (var light in  _lights)
             {
@@ -131,7 +159,7 @@ namespace IngameScript
         }
 
         // Переключить тревогу без условий
-        public void SwitchAlarm()
+        private void SwitchAlarm()
         {
             if (!_lightOn) return;
             if (LightState == LightStates.Alarm ) AlarmOff();
@@ -189,6 +217,66 @@ namespace IngameScript
                 CheckFirstRun();
             CheckAvailableLights();
             
+        }
+
+        public override IEnumerable<string> GetCommands()
+        {
+            return _availableCommands.Keys.Select(k => $"{SystemName} {k}");
+        }
+
+        public override void ExecuteCommand(string command)
+        {
+            // Проверки полученной команды на формат
+            var cmd = command.Split(' ');
+            if (cmd.Length != 2)
+            {
+                _logger?.WriteText(new AlarmMessage
+                {
+                    AlarmCode = AlarmCodes.CommandInfo,
+                    Message = $"Получена команда в неверном формате: \"{command}\"",
+                    System = this,
+                    Type = MessageType.Warning,
+                    IsActive = true
+                });
+                return;
+            }
+
+            if (cmd[0] != SystemName)
+            {
+                _logger?.WriteText(new AlarmMessage
+                {
+                    AlarmCode = AlarmCodes.CommandInfo,
+                    Message = $"Получена команда от другой системы: \"{command}\"",
+                    System = this,
+                    Type = MessageType.Warning,
+                    IsActive = true
+                });
+                return;
+            }
+            
+            // Исполнение команды
+            Action availableCommand;
+            if (_availableCommands.TryGetValue(cmd[1], out availableCommand))
+            {
+                availableCommand.Invoke();
+                _logger?.WriteText(new AlarmMessage
+                {
+                    AlarmCode = AlarmCodes.CommandInfo,
+                    Message = $"Выполнена команда: \"{command}\"",
+                    System = this,
+                    Type = MessageType.Info,
+                    IsActive = true
+                });
+            }
+            else
+                _logger?.WriteText(new AlarmMessage
+                {
+                    AlarmCode = AlarmCodes.CommandInfo,
+                    Message = $"Введена неизвестная команда {command}",
+                    System = this,
+                    Type = MessageType.Warning,
+                    IsActive = true
+                });
         }
         
         private void CheckFirstRun()

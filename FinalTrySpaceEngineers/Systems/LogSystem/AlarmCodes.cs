@@ -5,6 +5,7 @@ namespace IngameScript
         OnOffInfo,
         StartupInfo,
         InitCount,
-        CommandInfo
+        CommandInfo,
+        Unknown
     }
 }

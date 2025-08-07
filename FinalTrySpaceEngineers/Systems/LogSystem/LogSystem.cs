@@ -72,6 +72,13 @@ namespace IngameScript
             if (_logPanels.Count > _maxMessages) _logMessages.Dequeue();
         }
 
+        public override void ExecuteCommand(string command) {}
+
+        public override IEnumerable<string> GetCommands()
+        {
+            return Enumerable.Empty<string>();
+        }
+
         public override void Update()
         {
             CheckSystemState();
@@ -156,9 +163,7 @@ namespace IngameScript
         {
             switch (alarm.AlarmCode)
             {
-                case AlarmCodes.InitCount:
-                    return new AlarmMessage(alarm, isActive);
-                default:
+                case AlarmCodes.Unknown:
                     return new AlarmMessage
                     {
                         AlarmCode = alarm.AlarmCode,
@@ -167,6 +172,12 @@ namespace IngameScript
                         System = this,
                         IsActive = isActive,
                     };
+                case AlarmCodes.OnOffInfo:
+                case AlarmCodes.StartupInfo:
+                case AlarmCodes.InitCount:
+                case AlarmCodes.CommandInfo:
+                default:
+                    return new AlarmMessage(alarm, isActive);
             }
         }
         
