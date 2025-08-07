@@ -6,5 +6,6 @@ namespace IngameScript
         Inactive,
         Alarm,
         Warning,
+        Unknown,
     }
 }

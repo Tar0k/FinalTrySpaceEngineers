@@ -21,7 +21,7 @@ namespace IngameScript
         // Ссылочное название системы в CustomData для определения принадлежности
         protected string RefCustomData { get; set; } = nameof(ToString);
         // Текущий статус системы
-        public SystemStates SystemState { get; private set; }
+        public virtual SystemStates SystemState { get; protected set; } = SystemStates.Active;
 
         public virtual void ExecuteCommand(string command)
         {

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using SpaceEngineers.Game.ModAPI.Ingame;
 using VRageMath;
 
@@ -15,15 +14,13 @@ namespace IngameScript
         private bool _firstRun = true;
         private bool _lightOn = true;
         private LightStates _lightState; 
-
-
+        
         private LightSystem(Program program, CoreSystem core)
         {
             program.GridTerminalSystem.GetBlocksOfType(_lights);
             _coreSystem = core;
             _coreSystem.UpdateSystems += Update;
             _coreSystem.AlarmTriggered += SwitchAlarm;
-            
             AvailableCommands = new Dictionary<string, Action>
             {
                 { "TurnOn", () =>

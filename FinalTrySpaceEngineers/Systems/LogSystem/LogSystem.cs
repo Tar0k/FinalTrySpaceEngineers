@@ -7,7 +7,7 @@ using VRage.Game.GUI.TextPanel;
 
 namespace IngameScript
 {
-    public class LogSystem : BaseSystem, ILogger, IDisposable
+    public sealed class LogSystem : BaseSystem, ILogger, IDisposable
     {
         private readonly CoreSystem _coreSystem;
         
@@ -27,19 +27,21 @@ namespace IngameScript
             var panels = new List<IMyTextPanel>();
             program.GridTerminalSystem.GetBlocksOfType(panels);
             _logPanels = panels.Where(p => p.CustomData.Contains(RefCustomData)).ToList();
-            
             ConfigurePanels(_logPanels);
             _coreSystem = core;
             _coreSystem.UpdateSystems += Update;
         }
 
-        public void WriteText(AlarmMessage message)
+        public bool WriteText(AlarmMessage message)
         {
+            if (SystemState != SystemStates.Active) return false;
             WriteText(text: message.Message, system: message.System, isActive: message.IsActive);
+            return true;
         }
 
-        public void WriteText(string text, BaseSystem system, bool? isActive)
+        public bool WriteText(string text, BaseSystem system, bool? isActive)
         {
+            if (SystemState != SystemStates.Active) return false;
             if (isActive.HasValue)
             {
                 if (isActive == true)
@@ -70,12 +72,14 @@ namespace IngameScript
             }
             
             if (_logPanels.Count > _maxMessages) _logMessages.Dequeue();
+            return true;
         }
         
         public override void Update()
         {
-            CheckSystemState();
+            if (SystemState != SystemStates.Active) return;
             
+            CheckSystemState();
             foreach (var textPanel in _logPanels)
             {
                 var str = new StringBuilder();

@@ -49,7 +49,7 @@ namespace IngameScript
             }
         }
 
-        public SoundSystem(Program program, CoreSystem core)
+        private SoundSystem(Program program, CoreSystem core)
         {
             program.GridTerminalSystem.GetBlocksOfType(_soundBlocks);
             _coreSystem = core;
@@ -96,8 +96,8 @@ namespace IngameScript
         {
             _logger = logger;
         }
-        
-        public void TurnOn()
+
+        private void TurnOn()
         {
             foreach (var soundBlock in  _soundBlocks)
             {

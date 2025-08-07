@@ -29,6 +29,21 @@ namespace IngameScript
                 _logSystem, _lightSystem,  _soundSystem
             };
         }
+        
+        public override SystemStates SystemState {
+            get
+            {
+                if (_systems.Any(s => s.SystemState == SystemStates.Alarm))
+                    return SystemStates.Alarm;
+                if (_systems.Any(s => s.SystemState == SystemStates.Warning))
+                    return SystemStates.Warning;
+                if (_systems.All(s => s.SystemState == SystemStates.Active))
+                    return SystemStates.Active;
+                return SystemStates.Unknown;
+
+            }
+            protected set { }
+        }
 
         public override void Update()
         {
