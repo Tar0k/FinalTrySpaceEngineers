@@ -71,14 +71,7 @@ namespace IngameScript
             
             if (_logPanels.Count > _maxMessages) _logMessages.Dequeue();
         }
-
-        public override void ExecuteCommand(string command) {}
-
-        public override IEnumerable<string> GetCommands()
-        {
-            return Enumerable.Empty<string>();
-        }
-
+        
         public override void Update()
         {
             CheckSystemState();

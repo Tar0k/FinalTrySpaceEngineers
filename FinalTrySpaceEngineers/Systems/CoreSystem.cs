@@ -17,6 +17,7 @@ namespace IngameScript
         {
             _logSystem = new LogSystem(program, this);
             _logSystem.SystemAlarmTriggered += OnSystemAlarmTriggered;
+            Logger = _logSystem;
             
             _lightSystem = new LightSystem(program, this, _logSystem);
 
@@ -24,11 +25,6 @@ namespace IngameScript
             {
                 _logSystem, _lightSystem
             };
-        }
-
-        public override IEnumerable<string> GetCommands()
-        {
-            return Enumerable.Empty<string>();
         }
 
         public override void Update()
@@ -42,7 +38,7 @@ namespace IngameScript
             var cmd = command.Split(' ');
             if (cmd.Length != 2)
             {
-                _logSystem?.WriteText(new AlarmMessage
+               Logger?.WriteText(new AlarmMessage
                 {
                     AlarmCode = AlarmCodes.CommandInfo,
                     Message = $"Получена команда в неверном формате: \"{command}\"",
@@ -55,7 +51,7 @@ namespace IngameScript
 
             if (!_systems.Select(s => s.SystemName).Contains(cmd[0]))
             {
-                _logSystem?.WriteText(new AlarmMessage
+                Logger?.WriteText(new AlarmMessage
                 {
                     AlarmCode = AlarmCodes.CommandInfo,
                     Message = $"Получена команда для неизвестной системы: \"{command}\"",

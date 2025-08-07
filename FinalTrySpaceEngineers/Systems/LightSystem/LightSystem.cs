@@ -15,8 +15,6 @@ namespace IngameScript
         private bool _firstRun = true;
         private bool _lightOn = true;
 
-        private readonly Dictionary<string, Action> _availableCommands;
-
 
         private LightSystem(Program program, CoreSystem core)
         {
@@ -25,7 +23,7 @@ namespace IngameScript
             _coreSystem.UpdateSystems += Update;
             _coreSystem.AlarmTriggered += SwitchAlarm;
             
-            _availableCommands = new Dictionary<string, Action>
+            AvailableCommands = new Dictionary<string, Action>
             {
                 { "TurnOn", () =>
                     {
@@ -178,7 +176,6 @@ namespace IngameScript
             {
                 AlarmOff();
             }
-                
         }
         
         private void AlarmOn()
@@ -221,7 +218,7 @@ namespace IngameScript
 
         public override IEnumerable<string> GetCommands()
         {
-            return _availableCommands.Keys.Select(k => $"{SystemName} {k}");
+            return AvailableCommands.Keys.Select(k => $"{SystemName} {k}");
         }
 
         public override void ExecuteCommand(string command)
@@ -256,7 +253,7 @@ namespace IngameScript
             
             // Исполнение команды
             Action availableCommand;
-            if (_availableCommands.TryGetValue(cmd[1], out availableCommand))
+            if (AvailableCommands.TryGetValue(cmd[1], out availableCommand))
             {
                 availableCommand.Invoke();
                 _logger?.WriteText(new AlarmMessage
