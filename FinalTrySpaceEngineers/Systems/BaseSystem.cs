@@ -16,6 +16,11 @@ namespace IngameScript
             RefCustomData = GetType().Name;
         }
 
+        protected BaseSystem(ILogger logger) : this()
+        {
+            Logger = logger;
+        }
+
         // Название системы для отображения в UI
         public string SystemName { get; set; }
 
@@ -41,7 +46,7 @@ namespace IngameScript
                 return false;
             }
 
-            if (cmd[0] != SystemName)
+            if (cmd[0] != RefCustomData)
             {
                 Logger?.WriteText(new AlarmMessage
                 {

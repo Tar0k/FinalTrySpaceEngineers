@@ -17,7 +17,7 @@ namespace IngameScript
         public event Action<AlarmMessage> EnemyDetected;
         public event Action UpdateDoors;
         
-        public SafetySystem(Program program, CoreSystem coreSystem, ILogger logger)
+        public SafetySystem(Program program, CoreSystem coreSystem, ILogger logger) : base(logger)
         {
             SystemName = "Система безопасности";
             _coreSystem = coreSystem;

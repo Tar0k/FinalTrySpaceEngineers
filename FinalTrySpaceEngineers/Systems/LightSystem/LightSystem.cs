@@ -16,13 +16,14 @@ namespace IngameScript
         private bool _lightOn = true;
         private LightStates _lightState; 
         
-        private LightSystem(Program program, CoreSystem core)
+        public LightSystem(Program program, CoreSystem core, ILogger logger) : base(logger)
         {
             SystemName = "Управление светом";
             program.GridTerminalSystem.GetBlocksOfType(_lights);
             _coreSystem = core;
             _coreSystem.UpdateSystems += Update;
             _coreSystem.AlarmTriggered += SwitchAlarm;
+            _logger = logger;
             AvailableCommands = new Dictionary<string, Action>
             {
                 { "TurnOn", () =>
@@ -51,11 +52,6 @@ namespace IngameScript
             };
             
             Default();
-        }
-        
-        public LightSystem(Program program, CoreSystem core, ILogger logger) : this(program, core)
-        {
-            _logger = logger;
         }
 
 

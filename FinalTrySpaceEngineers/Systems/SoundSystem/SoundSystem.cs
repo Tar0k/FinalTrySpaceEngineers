@@ -49,13 +49,14 @@ namespace IngameScript
             }
         }
 
-        private SoundSystem(Program program, CoreSystem core)
+        public SoundSystem(Program program, CoreSystem core, ILogger logger) : base(logger)
         {
             SystemName = "Звуковая система";
             program.GridTerminalSystem.GetBlocksOfType(_soundBlocks);
             _coreSystem = core;
             _coreSystem.UpdateSystems += Update;
             _coreSystem.AlarmTriggered += SwitchAlarm;
+            _logger = logger;
             AvailableCommands = new Dictionary<string, Action>
             {
                 { "TurnOff", () =>
@@ -91,11 +92,6 @@ namespace IngameScript
             };
             program.GridTerminalSystem.GetBlocksOfType(_soundBlocks);
             Default();
-        }
-
-        public SoundSystem(Program program, CoreSystem core, ILogger logger) : this(program, core)
-        {
-            _logger = logger;
         }
 
         private void TurnOn()
