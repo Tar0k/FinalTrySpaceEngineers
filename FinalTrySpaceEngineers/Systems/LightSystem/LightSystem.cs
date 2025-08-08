@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using SpaceEngineers.Game.ModAPI.Ingame;
-using VRage;
 using VRageMath;
 
 namespace IngameScript
@@ -48,10 +47,11 @@ namespace IngameScript
                         LightState = LightStates.Alarm;
                     }
                 },
+                { "AlarmOff", AlarmOff },
                 { "SwitchAlarm", SwitchAlarm }
             };
             
-            Default();
+            TurnOn();
         }
 
 
@@ -72,7 +72,6 @@ namespace IngameScript
                         SwitchAlarm();
                         break;
                     case LightStates.Default:
-                        Default();
                         break;
                     case LightStates.Off:
                     case LightStates.Mixed:
@@ -110,7 +109,7 @@ namespace IngameScript
         {
             foreach (var light in  _lights)
             {
-                light.Enabled = light.Enabled == false;
+                light.Enabled = true;
             }
             
             _lightOn = true;
@@ -131,7 +130,7 @@ namespace IngameScript
         {
             foreach (var light in  _lights)
             {
-                light.Enabled = light.Enabled != true;
+                light.Enabled = false;
             }
 
             _lightOn = false;
@@ -184,21 +183,18 @@ namespace IngameScript
 
         private void AlarmOff()
         {
-            if (_lightOn)
-            {
                 Default();
-            }
         }
 
         private void Default()
         {
+            if (!_lightOn) return;
             foreach (var light in _lights)
             {
                 light.Color = Color.White;
                 light.BlinkLength = 0;
             }
-
-            _lightState = LightStates.Default;
+            _lightState = LightStates.On;
         }
 
         public override void Update()

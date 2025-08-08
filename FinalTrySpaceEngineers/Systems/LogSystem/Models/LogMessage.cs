@@ -20,12 +20,12 @@ namespace IngameScript
             if (OccurrenceTime != null)
             {
                 str.Append(' ');
-                str.Append(OccurrenceTime.Value.ToShortTimeString());
+                str.Append(OccurrenceTime.Value.ToString("HH:mm:ss"));
             }
 
             if (EndTime == null) return str.ToString();
             str.Append(' ');
-            str.Append(EndTime.Value.ToShortTimeString());
+            str.Append(EndTime.Value.ToString("HH:mm:ss"));
             return str.ToString();
         }
     }
