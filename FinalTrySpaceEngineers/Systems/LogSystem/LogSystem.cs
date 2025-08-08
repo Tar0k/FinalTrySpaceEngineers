@@ -99,9 +99,6 @@ namespace IngameScript
             if (_firstRun) CheckFirstRun();
             // Проверка и обновление списка текущих тревог
             CheckAvailablePanels();
-            
-            // Вызов событий для обновлений в списке тревог
-            InvokeNewAlarms(previousAlarms);
         }
 
         private void CheckFirstRun()
@@ -132,50 +129,6 @@ namespace IngameScript
                 });
             else if (_alarms.Select(a => a.AlarmCode).Contains(AlarmCodes.InitCount))
                 _alarms.RemoveAll(a => a.AlarmCode == AlarmCodes.InitCount);
-        }
-
-        private void InvokeNewAlarms(List<SystemAlarm> previousAlarms)
-        {
-            // Извещаем о новых тревогах
-            foreach (var currentAlarm in _alarms
-                         .Where(currentAlarm=> !previousAlarms
-                             .Select(prevAlarm => prevAlarm.AlarmCode)
-                             .Contains(currentAlarm.AlarmCode)))
-            {
-                SystemAlarmTriggered?.Invoke(FormAlarmMessage(currentAlarm, true));
-            }
-
-            // Извещаем об ушедших тревогах
-            foreach (var previousAlarm in previousAlarms
-                         .Where(previousAlarm => !_alarms
-                             .Select(currentAlarm => currentAlarm.AlarmCode)
-                             .Contains(previousAlarm.AlarmCode)))
-            {
-                SystemAlarmTriggered?.Invoke(FormAlarmMessage(previousAlarm, false));
-            }
-        }
-
-        private AlarmMessage FormAlarmMessage(SystemAlarm alarm, bool isActive)
-        {
-            switch (alarm.AlarmCode)
-            {
-                case AlarmCodes.Unknown:
-                    return new AlarmMessage
-                    {
-                        AlarmCode = alarm.AlarmCode,
-                        Message = $"Неизвестная ошибка в системе \"{SystemName}\"",
-                        Type = MessageType.Warning,
-                        System = this,
-                        IsActive = isActive,
-                    };
-                case AlarmCodes.OnOffInfo:
-                case AlarmCodes.StartupInfo:
-                case AlarmCodes.InitCount:
-                case AlarmCodes.CommandInfo:
-                case AlarmCodes.EnemyDetected:
-                default:
-                    return new AlarmMessage(alarm, isActive);
-            }
         }
         
         // Настройка параметров панелей
